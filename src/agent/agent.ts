@@ -5,6 +5,7 @@ import { AgentResult } from "../core/result.js";
 import { ToolRegistry } from "../tools/registry.js";
 import { MemoryStore } from "../memory/memory-store.js";
 import { saveTaskMemory, saveRunMemory, getRecentMemory } from "../memory/helpers.js";
+import { summarizeAndSave } from "../memory/summary.js";
 import { Skill } from "../skills/models.js";
 import { EventBus, createEvent } from "../runtime/event-bus.js";
 import { RunLogger } from "../runtime/run-logger.js";
@@ -119,6 +120,7 @@ export class Agent {
     if (this.options.memoryStore) {
       await saveTaskMemory(this.options.memoryStore, task);
       await saveRunMemory(this.options.memoryStore, run);
+      await summarizeAndSave(this.options.memoryStore, task, run);
     }
 
     const duration = Date.now() - startTime;

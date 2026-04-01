@@ -1,6 +1,6 @@
-import { Agent } from "./agent/agent.js";
-import { MockProvider } from "./llm/providers/mock.provider.js";
-import { createTask } from "./core/task.js";
+import { Agent } from "../src/agent/agent.js";
+import { MockProvider } from "../src/llm/providers/mock.provider.js";
+import { createTask } from "../src/core/task.js";
 
 async function runTests() {
   let passed = 0;
@@ -46,7 +46,7 @@ async function runTests() {
 
   // Test 4: Config loading
   console.log("\nTest 4: Config defaults");
-  const { loadConfig } = await import("./config/env.js");
+  const { loadConfig } = await import("../src/config/env.js");
   const config = loadConfig();
   assert("default provider is mock", config.llmProvider === "mock");
   assert("default max steps is 10", config.maxSteps === 10);

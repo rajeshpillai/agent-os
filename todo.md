@@ -4,7 +4,7 @@
 - [x] Commit 02 — Agent loop v1 (think → act → observe, stop conditions, max step guard)
 - [x] Commit 03 — Tool interface + registry
 - [x] Commit 04 — Workspace tools
-- [ ] Commit 05 — File-based memory
+- [x] Commit 05 — File-based memory
 - [ ] Commit 06 — Skill system
 - [ ] Commit 07 — Real LLM provider abstraction
 - [ ] Commit 08 — System prompt composer

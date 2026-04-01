@@ -3,6 +3,8 @@ import { Task } from "../core/task.js";
 import { Run, createRun, completeRun, failRun } from "../core/run.js";
 import { AgentResult } from "../core/result.js";
 import { ToolRegistry } from "../tools/registry.js";
+import { MemoryStore } from "../memory/memory-store.js";
+import { saveTaskMemory, saveRunMemory } from "../memory/helpers.js";
 import { runLoop } from "./loop.js";
 import { buildSystemPrompt } from "./system-prompt.js";
 
@@ -10,6 +12,7 @@ export interface AgentOptions {
   maxSteps: number;
   toolExecutor?: ToolExecutor;
   registry?: ToolRegistry;
+  memoryStore?: MemoryStore;
 }
 
 export class Agent {
@@ -65,6 +68,12 @@ export class Agent {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       run = failRun(run, errorMessage);
+    }
+
+    // Persist to memory if store is provided
+    if (this.options.memoryStore) {
+      await saveTaskMemory(this.options.memoryStore, task);
+      await saveRunMemory(this.options.memoryStore, run);
     }
 
     const duration = Date.now() - startTime;

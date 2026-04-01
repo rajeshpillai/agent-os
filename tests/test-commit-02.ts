@@ -1,7 +1,7 @@
-import { Agent } from "./agent/agent.js";
-import { MockProvider, MockStep } from "./llm/providers/mock.provider.js";
-import { createTask } from "./core/task.js";
-import { ToolCall, ToolResult } from "./core/types.js";
+import { Agent } from "../src/agent/agent.js";
+import { MockProvider, MockStep } from "../src/llm/providers/mock.provider.js";
+import { createTask } from "../src/core/task.js";
+import { ToolCall, ToolResult } from "../src/core/types.js";
 
 async function runTests() {
   let passed = 0;

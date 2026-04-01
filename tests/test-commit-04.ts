@@ -1,13 +1,13 @@
 import { mkdirSync, writeFileSync, readFileSync, rmSync, existsSync } from "node:fs";
-import { Agent } from "./agent/agent.js";
-import { MockProvider, MockStep } from "./llm/providers/mock.provider.js";
-import { createTask } from "./core/task.js";
-import { ToolRegistry } from "./tools/registry.js";
-import { createFinalizeTool } from "./tools/builtins/finalize.tool.js";
-import { createListFilesTool } from "./tools/builtins/list-files.tool.js";
-import { createReadFileTool } from "./tools/builtins/read-file.tool.js";
-import { createWriteFileTool } from "./tools/builtins/write-file.tool.js";
-import { resolveSafePath } from "./storage/paths.js";
+import { Agent } from "../src/agent/agent.js";
+import { MockProvider, MockStep } from "../src/llm/providers/mock.provider.js";
+import { createTask } from "../src/core/task.js";
+import { ToolRegistry } from "../src/tools/registry.js";
+import { createFinalizeTool } from "../src/tools/builtins/finalize.tool.js";
+import { createListFilesTool } from "../src/tools/builtins/list-files.tool.js";
+import { createReadFileTool } from "../src/tools/builtins/read-file.tool.js";
+import { createWriteFileTool } from "../src/tools/builtins/write-file.tool.js";
+import { resolveSafePath } from "../src/storage/paths.js";
 
 const TEST_DIR = "/tmp/agent-os-test-04";
 

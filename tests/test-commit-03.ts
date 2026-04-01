@@ -1,9 +1,9 @@
-import { Agent } from "./agent/agent.js";
-import { MockProvider, MockStep } from "./llm/providers/mock.provider.js";
-import { createTask } from "./core/task.js";
-import { ToolRegistry } from "./tools/registry.js";
-import { createFinalizeTool } from "./tools/builtins/finalize.tool.js";
-import { createListFilesTool } from "./tools/builtins/list-files.tool.js";
+import { Agent } from "../src/agent/agent.js";
+import { MockProvider, MockStep } from "../src/llm/providers/mock.provider.js";
+import { createTask } from "../src/core/task.js";
+import { ToolRegistry } from "../src/tools/registry.js";
+import { createFinalizeTool } from "../src/tools/builtins/finalize.tool.js";
+import { createListFilesTool } from "../src/tools/builtins/list-files.tool.js";
 import { mkdirSync, writeFileSync, rmSync } from "node:fs";
 
 const TEST_DIR = "/tmp/agent-os-test-03";

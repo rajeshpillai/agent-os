@@ -2,7 +2,7 @@
 
 - [x] Commit 01 — Bootstrap repo + core types + mock run
 - [x] Commit 02 — Agent loop v1 (think → act → observe, stop conditions, max step guard)
-- [ ] Commit 03 — Tool interface + registry
+- [x] Commit 03 — Tool interface + registry
 - [ ] Commit 04 — Workspace tools
 - [ ] Commit 05 — File-based memory
 - [ ] Commit 06 — Skill system

@@ -2,12 +2,14 @@ import { LLMProvider, Message, ToolExecutor } from "../core/types.js";
 import { Task } from "../core/task.js";
 import { Run, createRun, completeRun, failRun } from "../core/run.js";
 import { AgentResult } from "../core/result.js";
+import { ToolRegistry } from "../tools/registry.js";
 import { runLoop } from "./loop.js";
 import { buildSystemPrompt } from "./system-prompt.js";
 
 export interface AgentOptions {
   maxSteps: number;
   toolExecutor?: ToolExecutor;
+  registry?: ToolRegistry;
 }
 
 export class Agent {
@@ -30,10 +32,15 @@ export class Agent {
 
     console.log(`\n[Agent] Starting run ${run.id} for task: ${task.description}`);
 
+    // Prefer registry executor over raw toolExecutor
+    const toolExecutor = this.options.registry
+      ? this.options.registry.toExecutor()
+      : this.options.toolExecutor;
+
     try {
       const loopResult = await runLoop(this.provider, messages, {
         maxSteps: this.options.maxSteps,
-        toolExecutor: this.options.toolExecutor,
+        toolExecutor,
       });
 
       run.steps = loopResult.steps;

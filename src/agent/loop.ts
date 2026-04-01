@@ -7,6 +7,7 @@ import {
   ToolExecutor,
   StopReason,
 } from "../core/types.js";
+import { FINALIZE_TOOL_NAME } from "../tools/builtins/finalize.tool.js";
 
 export interface LoopOptions {
   maxSteps: number;
@@ -102,6 +103,15 @@ export async function runLoop(
     steps.push(observeRecord);
 
     console.log(`[Loop]   → observe: ${toolResults.length} result(s)`);
+
+    // Check if finalize was called
+    const finalizeResult = toolResults.find(r => r.name === FINALIZE_TOOL_NAME && !r.isError);
+    if (finalizeResult) {
+      finalOutput = finalizeResult.result;
+      stopReason = "complete";
+      console.log(`[Loop]   → finalized`);
+      break;
+    }
   }
 
   if (stopReason === "max_steps") {

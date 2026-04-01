@@ -13,7 +13,7 @@
 - [x] Commit 11 — Summarization + memory compression
 - [x] Commit 12 — Planner / executor split
 - [x] Commit 13 — Human approval gates
-- [ ] Commit 14 — Multi-agent shared memory foundation
+- [x] Commit 14 — Multi-agent shared memory foundation
 - [ ] Commit 15 — Production hardening
 
 ## Post v1

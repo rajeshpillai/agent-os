@@ -7,6 +7,7 @@ import { createFinalizeTool } from "./tools/builtins/finalize.tool.js";
 import { createListFilesTool } from "./tools/builtins/list-files.tool.js";
 import { createReadFileTool } from "./tools/builtins/read-file.tool.js";
 import { createWriteFileTool } from "./tools/builtins/write-file.tool.js";
+import { createShellTool } from "./tools/builtins/shell.tool.js";
 import { loadAllSkills, selectSkillsForTask } from "./skills/skill-loader.js";
 
 async function main() {
@@ -22,6 +23,7 @@ async function main() {
   registry.register(createListFilesTool("."));
   registry.register(createReadFileTool("."));
   registry.register(createWriteFileTool("."));
+  registry.register(createShellTool({ workspaceRoot: "." }));
   console.log(`Tools: ${registry.list().map(t => t.name).join(", ")}`);
 
   // Load skills and select based on task

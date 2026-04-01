@@ -16,7 +16,7 @@ async function main() {
   // Set up tool registry
   const registry = new ToolRegistry();
   registry.register(createFinalizeTool());
-  registry.register(createListFilesTool(config.workspaceRoot));
+  registry.register(createListFilesTool("."));
 
   console.log(`Tools: ${registry.list().map(t => t.name).join(", ")}`);
 

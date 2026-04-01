@@ -17,6 +17,15 @@ import { RunLogger } from "../../runtime/run-logger.js";
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 
+function slugifyTask(task: string): string {
+  return task
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")  // non-alphanumeric → hyphens
+    .replace(/^-+|-+$/g, "")       // trim leading/trailing hyphens
+    .slice(0, 50)                   // cap length
+    .replace(/-+$/, "");            // trim trailing hyphen after slice
+}
+
 export async function runTaskCommand(args: ParsedArgs): Promise<void> {
   if (!args.task) {
     console.error('Error: task description required. Usage: agent-os run "your task"');
@@ -35,13 +44,16 @@ export async function runTaskCommand(args: ParsedArgs): Promise<void> {
 
   assertConfigValid(config);
 
-  const workspace = resolve((args.flags.workspace as string) ?? config.workspaceRoot);
+  const workspaceBase = resolve((args.flags.workspace as string) ?? config.workspaceRoot);
+  const projectName = (args.flags.name as string) ?? slugifyTask(args.task);
+  const workspace = resolve(workspaceBase, projectName);
   const skillsDir = resolve((args.flags["skills-dir"] as string) ?? "./skills");
   const logsDir = resolve((args.flags["logs-dir"] as string) ?? "./.agent-os/logs");
   const verbose = args.flags.verbose === true;
 
-  // Ensure workspace directory exists
+  // Ensure workspace project directory exists
   mkdirSync(workspace, { recursive: true });
+  console.log(`[Agent] Project directory: ${workspace}`);
 
   // Set up tool registry
   const registry = new ToolRegistry();

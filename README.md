@@ -76,16 +76,41 @@ You can also point to a remote Ollama instance by setting `OLLAMA_BASE_URL`.
 ## CLI Usage
 
 ```bash
-# Run a task
+# Run a task (creates workspace/read-readme-md-and-summarize-it/)
 npm run cli -- run "Read README.md and summarize it"
 
-# With options
-npm run cli -- run "Build an API server" --provider openai --max-steps 20
+# With a custom project name (creates workspace/my-api/)
+npm run cli -- run "Build an API server" --name my-api --provider openai --max-steps 20
+
+# Point to an existing project (no auto-naming)
 npm run cli -- run "Refactor utils" --workspace ./my-project
+
+# Other options
 npm run cli -- run "Research codebase" --skills-dir ./skills --verbose
 
 # Help
 npm run cli -- help
+```
+
+### Project Isolation
+
+Each task gets its own project folder inside the workspace:
+
+```
+workspace/
+  create-a-fullstack-todo-app/    ← auto-named from task
+    backend/
+    frontend/
+    package.json
+  my-api/                          ← named with --name my-api
+    src/
+    package.json
+```
+
+The project name is auto-generated from the task description (slugified). Override with `--name`:
+
+```bash
+npm run cli -- run "Create a todo app" --name todo-app
 ```
 
 ### CLI Options
@@ -94,7 +119,8 @@ npm run cli -- help
 |------|-------------|---------|
 | `--provider <name>` | LLM provider (`mock`, `openai`, `gemini`, `ollama`) | from `.env` |
 | `--max-steps <n>` | Maximum agent loop steps | `10` |
-| `--workspace <path>` | Workspace root directory | `.` |
+| `--name <name>` | Project folder name | auto-generated from task |
+| `--workspace <path>` | Workspace root directory | `./workspace` |
 | `--skills-dir <path>` | Skills directory | `./skills` |
 | `--logs-dir <path>` | JSONL logs directory | `./.agent-os/logs` |
 | `--verbose` | Enable verbose logging | `false` |
@@ -103,43 +129,96 @@ npm run cli -- help
 
 ## Cookbook
 
-### 1. Build a Full-Stack App
+### 1. Full-Stack App (React + Express + Tailwind)
+
+Auto-activates the **fullstack** skill — produces a polished UI with Tailwind CSS, Lucide icons, and responsive layout.
 
 ```bash
 npm run cli -- run \
   "Create a full-stack todo app: Express API backend with CRUD endpoints at /api/todos, \
-   and a React frontend (Vite) that displays, adds, and deletes todos. \
+   and a React frontend (Vite + Tailwind) that displays, adds, and deletes todos. \
    Add a root package.json with scripts to run both." \
-  --provider openai --max-steps 25 --workspace ./my-todo-app
+  --name todo-app --provider openai --max-steps 25
 ```
 
-The agent will use `write_file`, `shell`, and `list_files` tools to scaffold both projects, install dependencies, and wire them together.
+### 2. Next.js App (App Router + Prisma)
 
-### 2. Build a REST API
+Auto-activates the **nextjs** skill — uses Server Components, Server Actions, and Prisma with SQLite.
 
 ```bash
 npm run cli -- run \
-  "Create an Express + TypeScript REST API with: \
-   - GET/POST/PUT/DELETE /api/users \
-   - SQLite database with better-sqlite3 \
-   - Input validation \
-   - Error handling middleware" \
-  --provider openai --max-steps 20 --workspace ./users-api
+  "Create a Next.js bookmarks app with App Router: \
+   - Prisma + SQLite for storage \
+   - Server Actions for create/delete \
+   - Tailwind CSS for styling \
+   - List, add, and remove bookmarks with tags" \
+  --name bookmarks --provider openai --max-steps 25
 ```
 
-### 3. Generate a Static Site
+### 3. Python API (FastAPI)
+
+Auto-activates the **python-api** skill — uses FastAPI, Pydantic, SQLAlchemy async, and SQLite.
+
+```bash
+npm run cli -- run \
+  "Create a FastAPI REST API for a notes app: \
+   - CRUD endpoints at /api/notes \
+   - SQLAlchemy with async SQLite \
+   - Pydantic schemas for validation \
+   - Auto-generated OpenAPI docs" \
+  --name notes-api --provider openai --max-steps 20
+```
+
+### 4. Static Website (HTML/CSS/JS)
+
+Auto-activates the **static-site** skill — modern CSS with custom properties, responsive grid, smooth animations.
 
 ```bash
 npm run cli -- run \
   "Create a portfolio website with HTML, CSS, and vanilla JS. \
-   Include: hero section, projects grid, about section, contact form. \
-   Use modern CSS (grid, custom properties). Make it responsive." \
-  --provider openai --max-steps 15 --workspace ./portfolio
+   Include: hero section with gradient, projects grid, about section, contact form. \
+   Use modern CSS (grid, custom properties). Make it responsive and beautiful." \
+  --name portfolio --provider openai --max-steps 15
 ```
 
-### 4. Refactor Existing Code
+### 5. React SPA (Single-Page App)
 
-Point the workspace at your project and ask the agent to refactor:
+Auto-activates the **react-frontend** skill — React + Vite + Tailwind + React Query + Lucide.
+
+```bash
+npm run cli -- run \
+  "Create a React dashboard SPA with Vite + Tailwind: \
+   - Sidebar navigation \
+   - Dashboard page with stat cards and a table \
+   - Settings page with a form \
+   - Responsive layout" \
+  --name dashboard --provider openai --max-steps 25
+```
+
+### 6. Any Framework — Just Ask
+
+Skills are defaults, not constraints. Specify any stack in the task prompt:
+
+```bash
+# SolidJS
+npm run cli -- run \
+  "Create a todo app using SolidJS + Vite + Tailwind CSS with signals for state" \
+  --name solid-todo --provider openai --max-steps 20
+
+# Vue 3
+npm run cli -- run \
+  "Create a Vue 3 + Vite + Tailwind CSS weather dashboard with Composition API" \
+  --name vue-weather --provider openai --max-steps 20
+
+# Svelte
+npm run cli -- run \
+  "Create a SvelteKit app with a notes CRUD interface, Tailwind CSS, and SQLite" \
+  --name svelte-notes --provider openai --max-steps 25
+```
+
+### 7. Refactor Existing Code
+
+Point the workspace at your project:
 
 ```bash
 npm run cli -- run \
@@ -148,7 +227,7 @@ npm run cli -- run \
   --provider openai --max-steps 15 --workspace ./my-project
 ```
 
-### 5. Research & Summarize a Codebase
+### 8. Research & Summarize a Codebase
 
 ```bash
 npm run cli -- run \
@@ -157,7 +236,7 @@ npm run cli -- run \
   --provider openai --max-steps 10 --workspace ./some-repo
 ```
 
-### 6. Use Local Models (Ollama) for Privacy
+### 9. Local Models (Ollama) for Privacy
 
 For sensitive codebases where you don't want code leaving your machine:
 
@@ -248,14 +327,25 @@ You are a senior full-stack engineer. When building an application:
 6. Verify the project structure is complete
 ```
 
-### Existing skills
+### Built-in Skills
 
-- **coding** — code writing, refactoring, debugging (`skills/coding/SKILL.md`)
-- **research** — codebase analysis and summarization (`skills/research/SKILL.md`)
+| Skill | Triggers on | What it does |
+|-------|------------|--------------|
+| **fullstack** | "fullstack", "todo app", "crud", "dashboard" | React + Vite + Tailwind + Express. Includes UI standards (colors, spacing, components), Tailwind setup, and project structure. |
+| **react-frontend** | "react", "spa", "dashboard", "landing" | React SPA with Vite + Tailwind + React Query + Lucide icons. Reusable component patterns (Button, Card). |
+| **nextjs** | "nextjs", "next.js", "ssr", "server actions" | Next.js App Router + Server Components + Prisma/SQLite. Server Actions for mutations. |
+| **python-api** | "python", "fastapi", "flask" | FastAPI + Pydantic v2 + SQLAlchemy 2.0 async + SQLite. Auto-generated OpenAPI docs. |
+| **static-site** | "static", "portfolio", "landing page", "website" | Pure HTML/CSS/JS. Modern CSS (custom properties, grid, clamp). No build tools. |
+| **coding** | "code", "refactor", "debug", "fix" | General code reading, writing, and modification. |
+| **research** | "research", "analyze", "summarize" | Read-only codebase analysis and summarization. |
+
+Skills live in `skills/<name>/SKILL.md`. Each contains UI design standards, library choices, file structure templates, and rules — so the agent produces polished, consistent output.
 
 ### How skill selection works
 
 When a task is run, the agent matches the task description against each skill's `name`, `description`, and `tags`. Matching skills are injected into the system prompt automatically — no manual selection needed.
+
+You can override skill defaults by being specific in the task prompt. For example, saying "use SolidJS" will make the agent use SolidJS even if the fullstack skill defaults to React.
 
 ---
 

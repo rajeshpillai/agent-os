@@ -54,7 +54,8 @@ Usage:
   agent-os run "<task>"          Run a task
   agent-os run "<task>" --provider openai
   agent-os run "<task>" --max-steps 5
-  agent-os run "<task>" --workspace ./my-project
+  agent-os run "<task>" --name my-app
+  agent-os run "<task>" --workspace ./projects
   agent-os run "<task>" --skills-dir ./skills
   agent-os run "<task>" --logs-dir ./logs
   agent-os help                  Show this help
@@ -62,7 +63,8 @@ Usage:
 Options:
   --provider <name>    LLM provider (mock, openai, gemini, ollama)
   --max-steps <n>      Maximum agent loop steps (default: 10)
-  --workspace <path>   Workspace root directory (default: .)
+  --name <name>        Project folder name (default: auto-generated from task)
+  --workspace <path>   Workspace root directory (default: ./workspace)
   --skills-dir <path>  Skills directory (default: ./skills)
   --logs-dir <path>    JSONL logs directory (default: ./.agent-os/logs)
   --verbose            Enable verbose logging

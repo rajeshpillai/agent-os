@@ -144,8 +144,10 @@ export function createShellTool(config: ShellToolConfig): Tool {
         if (err.killed || err.signal === "SIGTERM") {
           throw new Error(`Command timed out after ${timeoutMs}ms`);
         }
-        const stderr = err.stderr || err.message || "Unknown error";
-        throw new Error(`Command failed: ${String(stderr).trim()}`);
+        const stderr = String(err.stderr || err.message || "Unknown error").trim();
+        // Show up to 500 chars of stderr so the agent can see which package/line failed
+        const truncated = stderr.length > 500 ? stderr.slice(0, 500) + "\n...(truncated)" : stderr;
+        throw new Error(`Command failed:\n${truncated}`);
       }
     },
   };

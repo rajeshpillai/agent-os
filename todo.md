@@ -14,7 +14,7 @@
 - [x] Commit 12 — Planner / executor split
 - [x] Commit 13 — Human approval gates
 - [x] Commit 14 — Multi-agent shared memory foundation
-- [ ] Commit 15 — Production hardening
+- [x] Commit 15 — Production hardening
 
 ## Post v1
 - [ ] Commit 16 — Gemini provider (OpenAI-compatible endpoint first, native SDK later)

@@ -1,10 +1,13 @@
-import { LLMProvider, Message, StepRecord } from "../core/types.js";
+import { LLMProvider, Message, ToolExecutor } from "../core/types.js";
 import { Task } from "../core/task.js";
 import { Run, createRun, completeRun, failRun } from "../core/run.js";
 import { AgentResult } from "../core/result.js";
+import { runLoop } from "./loop.js";
+import { buildSystemPrompt } from "./system-prompt.js";
 
 export interface AgentOptions {
   maxSteps: number;
+  toolExecutor?: ToolExecutor;
 }
 
 export class Agent {
@@ -21,38 +24,36 @@ export class Agent {
     let run = createRun(task);
 
     const messages: Message[] = [
-      { role: "system", content: "You are a helpful agent. Complete the given task." },
+      { role: "system", content: buildSystemPrompt(task) },
       { role: "user", content: task.description + (task.input ? `\n\nInput: ${task.input}` : "") },
     ];
 
     console.log(`\n[Agent] Starting run ${run.id} for task: ${task.description}`);
 
     try {
-      for (let step = 1; step <= this.options.maxSteps; step++) {
-        console.log(`[Agent] Step ${step}/${this.options.maxSteps}`);
+      const loopResult = await runLoop(this.provider, messages, {
+        maxSteps: this.options.maxSteps,
+        toolExecutor: this.options.toolExecutor,
+      });
 
-        const response = await this.provider.chat(messages);
+      run.steps = loopResult.steps;
 
-        const stepRecord: StepRecord = {
-          stepNumber: step,
-          input: [...messages],
-          output: response,
-          timestamp: new Date().toISOString(),
-        };
-        run.steps.push(stepRecord);
-
-        messages.push(response.message);
-
-        console.log(`[Agent] Assistant: ${response.message.content.slice(0, 100)}...`);
-
-        if (response.stopReason === "end_turn" && !response.message.toolCalls?.length) {
-          run = completeRun(run, response.message.content);
+      switch (loopResult.stopReason) {
+        case "complete":
+          run = completeRun(run, loopResult.finalOutput);
           break;
-        }
-      }
-
-      if (run.status === "running") {
-        run = { ...run, status: "max_steps_reached", completedAt: new Date().toISOString() };
+        case "max_steps":
+          run = {
+            ...run,
+            status: "max_steps_reached",
+            result: loopResult.finalOutput,
+            completedAt: new Date().toISOString(),
+          };
+          break;
+        case "error":
+        case "tool_error":
+          run = failRun(run, loopResult.finalOutput);
+          break;
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -60,7 +61,6 @@ export class Agent {
     }
 
     const duration = Date.now() - startTime;
-
     console.log(`[Agent] Run ${run.status} in ${duration}ms (${run.steps.length} steps)`);
 
     return {

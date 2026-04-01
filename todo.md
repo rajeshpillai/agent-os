@@ -1,0 +1,17 @@
+# Agent OS — Build Progress
+
+- [x] Commit 01 — Bootstrap repo + core types + mock run
+- [x] Commit 02 — Agent loop v1 (think → act → observe, stop conditions, max step guard)
+- [ ] Commit 03 — Tool interface + registry
+- [ ] Commit 04 — Workspace tools
+- [ ] Commit 05 — File-based memory
+- [ ] Commit 06 — Skill system
+- [ ] Commit 07 — Real LLM provider abstraction
+- [ ] Commit 08 — System prompt composer
+- [ ] Commit 09 — Shell tool with safety guardrails
+- [ ] Commit 10 — Run events + logs
+- [ ] Commit 11 — Summarization + memory compression
+- [ ] Commit 12 — Planner / executor split
+- [ ] Commit 13 — Human approval gates
+- [ ] Commit 14 — Multi-agent shared memory foundation
+- [ ] Commit 15 — Production hardening

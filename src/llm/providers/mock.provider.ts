@@ -1,32 +1,38 @@
-import { LLMProvider, LLMResponse, Message } from "../../core/types.js";
+import { LLMProvider, LLMResponse, Message, ToolCall } from "../../core/types.js";
+
+export interface MockStep {
+  content: string;
+  toolCalls?: ToolCall[];
+}
 
 export class MockProvider implements LLMProvider {
   private callCount = 0;
-  private responses: string[];
+  private steps: MockStep[];
 
-  constructor(responses?: string[]) {
-    this.responses = responses ?? [
+  constructor(steps?: (string | MockStep)[]) {
+    this.steps = (steps ?? [
       "I'm analyzing the task. Let me think about this step by step.",
       "Based on my analysis, here is my conclusion:\n\nThe task has been completed successfully.",
-    ];
+    ]).map(s => (typeof s === "string" ? { content: s } : s));
   }
 
   async chat(messages: Message[]): Promise<LLMResponse> {
-    const responseIndex = Math.min(this.callCount, this.responses.length - 1);
-    const content = this.responses[responseIndex];
+    const stepIndex = Math.min(this.callCount, this.steps.length - 1);
+    const step = this.steps[stepIndex];
     this.callCount++;
 
-    const isLast = this.callCount >= this.responses.length;
+    const hasToolCalls = step.toolCalls && step.toolCalls.length > 0;
 
     return {
       message: {
         role: "assistant",
-        content,
+        content: step.content,
+        toolCalls: step.toolCalls,
       },
-      stopReason: isLast ? "end_turn" : "end_turn",
+      stopReason: hasToolCalls ? "tool_use" : "end_turn",
       usage: {
         inputTokens: messages.reduce((sum, m) => sum + m.content.length, 0),
-        outputTokens: content.length,
+        outputTokens: step.content.length,
       },
     };
   }

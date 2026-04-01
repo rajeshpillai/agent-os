@@ -35,10 +35,23 @@ export interface LLMProvider {
   chat(messages: Message[]): Promise<LLMResponse>;
 }
 
+// --- Step & Loop types ---
+
+export type StepPhase = "think" | "act" | "observe";
+
 export interface StepRecord {
   stepNumber: number;
+  phase: StepPhase;
   input: Message[];
   output: LLMResponse;
   toolResults?: ToolResult[];
   timestamp: string;
 }
+
+export type StopReason =
+  | "complete"        // LLM returned end_turn with no tool calls
+  | "max_steps"       // hit the step limit
+  | "error"           // unrecoverable error
+  | "tool_error";     // tool execution failed and loop was halted
+
+export type ToolExecutor = (call: ToolCall) => Promise<ToolResult>;

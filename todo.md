@@ -11,7 +11,7 @@
 - [x] Commit 09 — Shell tool with safety guardrails
 - [x] Commit 10 — Run events + logs
 - [x] Commit 11 — Summarization + memory compression
-- [ ] Commit 12 — Planner / executor split
+- [x] Commit 12 — Planner / executor split
 - [ ] Commit 13 — Human approval gates
 - [ ] Commit 14 — Multi-agent shared memory foundation
 - [ ] Commit 15 — Production hardening

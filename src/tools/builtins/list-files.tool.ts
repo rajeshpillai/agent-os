@@ -1,10 +1,9 @@
 import { readdirSync, statSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
 import { Tool } from "../tool.js";
+import { resolveSafePath } from "../../storage/paths.js";
 
 export function createListFilesTool(workspaceRoot: string): Tool {
-  const resolvedRoot = resolve(workspaceRoot);
-
   return {
     definition: {
       name: "list_files",
@@ -20,12 +19,7 @@ export function createListFilesTool(workspaceRoot: string): Tool {
     },
     async execute(args) {
       const relativePath = (args.path as string) || ".";
-      const targetPath = resolve(resolvedRoot, relativePath);
-
-      // Safety: ensure we stay within workspace
-      if (!targetPath.startsWith(resolvedRoot)) {
-        throw new Error("Path is outside the workspace boundary.");
-      }
+      const targetPath = resolveSafePath(workspaceRoot, relativePath);
 
       const entries = readdirSync(targetPath);
       const results = entries.map((entry) => {

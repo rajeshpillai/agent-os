@@ -5,6 +5,8 @@ import { loadConfig } from "./config/env.js";
 import { ToolRegistry } from "./tools/registry.js";
 import { createFinalizeTool } from "./tools/builtins/finalize.tool.js";
 import { createListFilesTool } from "./tools/builtins/list-files.tool.js";
+import { createReadFileTool } from "./tools/builtins/read-file.tool.js";
+import { createWriteFileTool } from "./tools/builtins/write-file.tool.js";
 
 async function main() {
   const config = loadConfig();
@@ -13,26 +15,28 @@ async function main() {
   console.log(`Provider: ${config.llmProvider}`);
   console.log(`Max steps: ${config.maxSteps}`);
 
-  // Set up tool registry
+  // Set up tool registry with all workspace tools
   const registry = new ToolRegistry();
   registry.register(createFinalizeTool());
   registry.register(createListFilesTool("."));
+  registry.register(createReadFileTool("."));
+  registry.register(createWriteFileTool("."));
 
   console.log(`Tools: ${registry.list().map(t => t.name).join(", ")}`);
 
-  // Demo: agent lists files then finalizes
+  // Demo: agent reads a file then finalizes
   const mockSteps: (string | MockStep)[] = [
     {
-      content: "Let me list the workspace files first.",
-      toolCalls: [{ id: "call_1", name: "list_files", arguments: { path: "." } }],
+      content: "Let me read the README to understand this project.",
+      toolCalls: [{ id: "call_1", name: "read_file", arguments: { path: "README.md" } }],
     },
     {
-      content: "Now I have the file listing. Let me finalize.",
+      content: "Got it. Let me summarize.",
       toolCalls: [
         {
           id: "call_2",
           name: "finalize",
-          arguments: { result: "Workspace contains the Agent OS source files." },
+          arguments: { result: "Agent OS is a Node.js + TypeScript runtime that turns an LLM into a controllable agent." },
         },
       ],
     },
@@ -44,8 +48,7 @@ async function main() {
     registry,
   });
 
-  const task = createTask("List the files in the workspace and describe what you see.");
-
+  const task = createTask("Read the README and summarize this project.");
   const result = await agent.execute(task);
 
   console.log("\n=== Result ===");

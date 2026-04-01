@@ -35,9 +35,15 @@ export function createWriteFileTool(workspaceRoot: string): Tool {
         throw new Error("The 'content' argument is required.");
       }
 
+      // Fix literal \n, \t, \\ sequences that LLMs sometimes produce instead of real newlines
+      const normalizedContent = content
+        .replace(/\\n/g, "\n")
+        .replace(/\\t/g, "\t")
+        .replace(/\\\\/g, "\\");
+
       const safePath = resolveSafePath(workspaceRoot, filePath);
       mkdirSync(dirname(safePath), { recursive: true });
-      writeFileSync(safePath, content, "utf-8");
+      writeFileSync(safePath, normalizedContent, "utf-8");
 
       return `File written: ${filePath}`;
     },

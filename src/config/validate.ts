@@ -11,12 +11,16 @@ export function validateConfig(config: Config): ValidationResult {
 
   if (!config.llmProvider) {
     errors.push("LLM_PROVIDER is required");
-  } else if (!["mock", "openai"].includes(config.llmProvider)) {
-    errors.push(`Unknown LLM_PROVIDER: "${config.llmProvider}". Supported: mock, openai`);
+  } else if (!["mock", "openai", "gemini"].includes(config.llmProvider)) {
+    errors.push(`Unknown LLM_PROVIDER: "${config.llmProvider}". Supported: mock, openai, gemini`);
   }
 
   if (config.llmProvider === "openai" && !config.openaiApiKey) {
     errors.push("OPENAI_API_KEY is required when LLM_PROVIDER=openai");
+  }
+
+  if (config.llmProvider === "gemini" && !config.geminiApiKey) {
+    errors.push("GEMINI_API_KEY is required when LLM_PROVIDER=gemini");
   }
 
   if (config.maxSteps < 1 || config.maxSteps > 100) {

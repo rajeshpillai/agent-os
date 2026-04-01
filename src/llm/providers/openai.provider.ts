@@ -6,6 +6,7 @@ export interface OpenAIProviderConfig {
   apiKey: string;
   model: string;
   tools?: ToolDefinition[];
+  baseURL?: string;
 }
 
 type OpenAIMessage = OpenAI.Chat.Completions.ChatCompletionMessageParam;
@@ -103,7 +104,10 @@ export class OpenAIProvider implements LLMProvider {
   private openaiTools?: OpenAITool[];
 
   constructor(config: OpenAIProviderConfig) {
-    this.client = new OpenAI({ apiKey: config.apiKey });
+    this.client = new OpenAI({
+      apiKey: config.apiKey,
+      baseURL: config.baseURL,
+    });
     this.model = config.model;
     this.openaiTools = config.tools?.length ? toolDefsToOpenAI(config.tools) : undefined;
   }

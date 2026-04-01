@@ -8,6 +8,8 @@ export interface LLMProviderOptions {
   tools?: ToolDefinition[];
 }
 
+const GEMINI_OPENAI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
+
 export function createProvider(config: Config, options?: LLMProviderOptions): LLMProvider {
   switch (config.llmProvider) {
     case "openai": {
@@ -17,6 +19,17 @@ export function createProvider(config: Config, options?: LLMProviderOptions): LL
       return new OpenAIProvider({
         apiKey: config.openaiApiKey,
         model: config.openaiModel,
+        tools: options?.tools,
+      });
+    }
+    case "gemini": {
+      if (!config.geminiApiKey) {
+        throw new Error("GEMINI_API_KEY is required when LLM_PROVIDER=gemini");
+      }
+      return new OpenAIProvider({
+        apiKey: config.geminiApiKey,
+        model: config.geminiModel,
+        baseURL: GEMINI_OPENAI_BASE_URL,
         tools: options?.tools,
       });
     }

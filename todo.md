@@ -17,4 +17,4 @@
 - [x] Commit 15 — Production hardening
 
 ## Post v1
-- [ ] Commit 16 — Gemini provider (OpenAI-compatible endpoint first, native SDK later)
+- [x] Commit 16 — Gemini provider (OpenAI-compatible endpoint)

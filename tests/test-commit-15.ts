@@ -136,6 +136,7 @@ async function runTests() {
     maxSteps: 10,
     workspaceRoot: "./workspace",
     openaiModel: "gpt-4o-mini",
+    geminiModel: "gemini-2.0-flash",
   };
   const validResult = validateConfig(validConfig);
   assert("is valid", validResult.valid);
@@ -148,6 +149,7 @@ async function runTests() {
     maxSteps: 10,
     workspaceRoot: "./workspace",
     openaiModel: "gpt-4o-mini",
+    geminiModel: "gemini-2.0-flash",
   };
   const noKeyResult = validateConfig(noKeyConfig);
   assert("is invalid", !noKeyResult.valid);
@@ -160,6 +162,7 @@ async function runTests() {
     maxSteps: 10,
     workspaceRoot: "./workspace",
     openaiModel: "gpt-4o-mini",
+    geminiModel: "gemini-2.0-flash",
   };
   const unknownResult = validateConfig(unknownConfig);
   assert("is invalid", !unknownResult.valid);
@@ -172,6 +175,7 @@ async function runTests() {
     maxSteps: 0,
     workspaceRoot: "./workspace",
     openaiModel: "gpt-4o-mini",
+    geminiModel: "gemini-2.0-flash",
   };
   const badResult = validateConfig(badSteps);
   assert("is invalid", !badResult.valid);

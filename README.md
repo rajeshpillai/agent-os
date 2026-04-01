@@ -76,14 +76,15 @@ You can also point to a remote Ollama instance by setting `OLLAMA_BASE_URL`.
 ## CLI Usage
 
 ```bash
-# Run a task (creates workspace/read-readme-md-and-summarize-it/)
-npm run cli -- run "Read README.md and summarize it"
+# Create a new project (auto-named from task)
+npm run cli -- run "Create a todo app" --provider openai
 
-# With a custom project name (creates workspace/my-api/)
-npm run cli -- run "Build an API server" --name my-api --provider openai --max-steps 20
+# Create with a specific name
+npm run cli -- run "Create a todo app" --name todo-app --provider openai
 
-# Point to an existing project (no auto-naming)
-npm run cli -- run "Refactor utils" --workspace ./my-project
+# Modify an existing project (add features, fix bugs)
+npm run cli -- run "Add a dark mode toggle" --project todo-app --provider openai
+npm run cli -- run "Fix the delete button" --project todo-app --provider openai
 
 # Other options
 npm run cli -- run "Research codebase" --skills-dir ./skills --verbose
@@ -98,11 +99,11 @@ Each task gets its own project folder inside the workspace:
 
 ```
 workspace/
-  create-a-fullstack-todo-app/    ← auto-named from task
+  todo-app/                        ← created with --name todo-app
     backend/
     frontend/
     package.json
-  my-api/                          ← named with --name my-api
+  create-a-rest-api/               ← auto-named from task
     src/
     package.json
 ```
@@ -113,13 +114,40 @@ The project name is auto-generated from the task description (slugified). Overri
 npm run cli -- run "Create a todo app" --name todo-app
 ```
 
+### Modifying Existing Projects
+
+Use `--project` to target a project that already exists in the workspace:
+
+```bash
+# Add a feature
+npm run cli -- run "Add user authentication with JWT" --project todo-app --provider openai
+
+# Fix a bug
+npm run cli -- run "The edit form doesn't save changes — fix it" --project todo-app --provider openai
+
+# Refactor
+npm run cli -- run "Extract API calls into a shared hooks/useApi.js" --project todo-app --provider openai
+
+# Add tests
+npm run cli -- run "Add unit tests for the backend API routes" --project todo-app --provider openai
+```
+
+When `--project` is used, the agent:
+1. Scans the existing project file tree (excluding node_modules, .git, etc.)
+2. Injects the file tree into its system prompt
+3. Reads existing files before making changes
+4. Makes targeted modifications instead of rewriting from scratch
+
+If the project doesn't exist, the CLI shows available projects and exits.
+
 ### CLI Options
 
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--provider <name>` | LLM provider (`mock`, `openai`, `gemini`, `ollama`) | from `.env` |
 | `--max-steps <n>` | Maximum agent loop steps | `10` |
-| `--name <name>` | Project folder name | auto-generated from task |
+| `--name <name>` | Project folder name (new projects) | auto-generated from task |
+| `--project <name>` | Target an existing project to modify | — |
 | `--workspace <path>` | Workspace root directory | `./workspace` |
 | `--skills-dir <path>` | Skills directory | `./skills` |
 | `--logs-dir <path>` | JSONL logs directory | `./.agent-os/logs` |

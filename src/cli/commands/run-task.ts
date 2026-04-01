@@ -14,8 +14,9 @@ import { loadAllSkills, selectSkillsForTask } from "../../skills/skill-loader.js
 import { FileMemoryStore } from "../../memory/file-memory-store.js";
 import { EventBus } from "../../runtime/event-bus.js";
 import { RunLogger } from "../../runtime/run-logger.js";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { scanProject, formatProjectTree } from "../../storage/project-scanner.js";
 
 function slugifyTask(task: string): string {
   return task
@@ -45,15 +46,45 @@ export async function runTaskCommand(args: ParsedArgs): Promise<void> {
   assertConfigValid(config);
 
   const workspaceBase = resolve((args.flags.workspace as string) ?? config.workspaceRoot);
-  const projectName = (args.flags.name as string) ?? slugifyTask(args.task);
-  const workspace = resolve(workspaceBase, projectName);
+  const isExistingProject = !!args.flags.project;
+  let workspace: string;
+  let projectTree: string | undefined;
+
+  if (isExistingProject) {
+    // --project targets an existing project folder
+    const projectName = args.flags.project as string;
+    workspace = resolve(workspaceBase, projectName);
+
+    if (!existsSync(workspace)) {
+      console.error(`Error: project "${projectName}" not found at ${workspace}`);
+      console.error(`Available projects:`);
+      try {
+        const { readdirSync, statSync } = await import("node:fs");
+        const entries = readdirSync(workspaceBase)
+          .filter(e => statSync(resolve(workspaceBase, e)).isDirectory());
+        entries.forEach(e => console.error(`  - ${e}`));
+        if (entries.length === 0) console.error("  (none)");
+      } catch {
+        console.error("  (workspace directory does not exist)");
+      }
+      process.exit(1);
+    }
+
+    // Scan existing project structure
+    const files = scanProject(workspace);
+    projectTree = formatProjectTree(files);
+    console.log(`[Agent] Existing project: ${workspace} (${files.length} files)`);
+  } else {
+    // New project — auto-generate or use --name
+    const projectName = (args.flags.name as string) ?? slugifyTask(args.task);
+    workspace = resolve(workspaceBase, projectName);
+    mkdirSync(workspace, { recursive: true });
+    console.log(`[Agent] Project directory: ${workspace}`);
+  }
+
   const skillsDir = resolve((args.flags["skills-dir"] as string) ?? "./skills");
   const logsDir = resolve((args.flags["logs-dir"] as string) ?? "./.agent-os/logs");
   const verbose = args.flags.verbose === true;
-
-  // Ensure workspace project directory exists
-  mkdirSync(workspace, { recursive: true });
-  console.log(`[Agent] Project directory: ${workspace}`);
 
   // Set up tool registry
   const registry = new ToolRegistry();
@@ -100,6 +131,7 @@ export async function runTaskCommand(args: ParsedArgs): Promise<void> {
     memoryStore,
     eventBus,
     runLogger,
+    projectTree,
   });
 
   const result = await agent.execute(task);

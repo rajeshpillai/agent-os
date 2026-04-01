@@ -51,19 +51,21 @@ export function showHelp(): string {
 Agent OS — CLI
 
 Usage:
-  agent-os run "<task>"          Run a task
-  agent-os run "<task>" --provider openai
-  agent-os run "<task>" --max-steps 5
-  agent-os run "<task>" --name my-app
-  agent-os run "<task>" --workspace ./projects
-  agent-os run "<task>" --skills-dir ./skills
-  agent-os run "<task>" --logs-dir ./logs
-  agent-os help                  Show this help
+  agent-os run "<task>"                  Create a new project
+  agent-os run "<task>" --name my-app    Create with a specific name
+  agent-os run "<task>" --project my-app Modify an existing project
+  agent-os help                          Show this help
+
+Examples:
+  agent-os run "Create a todo app" --provider openai
+  agent-os run "Add dark mode" --project todo-app --provider openai
+  agent-os run "Fix the delete button" --project todo-app --provider openai
 
 Options:
   --provider <name>    LLM provider (mock, openai, gemini, ollama)
   --max-steps <n>      Maximum agent loop steps (default: 10)
   --name <name>        Project folder name (default: auto-generated from task)
+  --project <name>     Target an existing project to modify/fix/extend
   --workspace <path>   Workspace root directory (default: ./workspace)
   --skills-dir <path>  Skills directory (default: ./skills)
   --logs-dir <path>    JSONL logs directory (default: ./.agent-os/logs)

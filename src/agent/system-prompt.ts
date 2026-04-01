@@ -42,6 +42,20 @@ function formatMemoryContext(entries: MemoryEntry[]): string {
   return "## Memory Context\n\nRelevant information from previous runs:\n\n" + lines.join("\n\n");
 }
 
+function formatProjectContext(tree: string): string {
+  return `## Existing Project
+
+This is an existing project. You MUST read and understand the current code before making changes. Do not rewrite files from scratch — make targeted modifications to the existing codebase.
+
+### Project File Tree
+
+\`\`\`
+${tree}
+\`\`\`
+
+**Important:** Start by reading the key files (package.json, main entry points, relevant source files) to understand the current structure, dependencies, and patterns before making any changes.`;
+}
+
 function formatTaskEnvelope(task: Task): string {
   let envelope = `## Current Task\n\n**${task.description}**`;
   if (task.input) {
@@ -71,7 +85,12 @@ export function buildSystemPrompt(ctx: AgentContext): string {
     parts.push(formatMemoryContext(ctx.memory));
   }
 
-  // 5. Task envelope
+  // 5. Existing project context
+  if (ctx.projectTree) {
+    parts.push(formatProjectContext(ctx.projectTree));
+  }
+
+  // 6. Task envelope
   parts.push(formatTaskEnvelope(ctx.task));
 
   return parts.join("\n\n");

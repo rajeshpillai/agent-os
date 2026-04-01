@@ -8,6 +8,7 @@ export interface AgentContext {
   tools?: ToolDefinition[];
   skills?: Skill[];
   memory?: MemoryEntry[];
+  projectTree?: string;
 }
 
 export function buildContext(parts: {
@@ -15,11 +16,13 @@ export function buildContext(parts: {
   tools?: ToolDefinition[];
   skills?: Skill[];
   memory?: MemoryEntry[];
+  projectTree?: string;
 }): AgentContext {
   return {
     task: parts.task,
     tools: parts.tools,
     skills: parts.skills,
     memory: parts.memory,
+    projectTree: parts.projectTree,
   };
 }

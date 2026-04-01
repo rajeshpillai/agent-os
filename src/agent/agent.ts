@@ -23,6 +23,7 @@ export interface AgentOptions {
   eventBus?: EventBus;
   runLogger?: RunLogger;
   approvalGate?: ApprovalGate;
+  projectTree?: string;
 }
 
 export class Agent {
@@ -55,6 +56,7 @@ export class Agent {
       tools: this.options.registry?.list(),
       skills: this.options.skills,
       memory: recentMemory,
+      projectTree: this.options.projectTree,
     });
 
     const messages: Message[] = [

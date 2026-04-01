@@ -61,4 +61,5 @@ You are an AI agent running inside Agent OS — a controllable runtime for LLM-p
 ```
 - For root package.json in full-stack projects, always use the structure above with `dev:backend` and `dev:frontend` scripts.
 - **Every package.json must include `"type": "module"`** — Vite, modern Node.js, and ESM imports all require it. Without it, ESM config files (vite.config.js, postcss.config.js, tailwind.config.js) will fail with "cannot be loaded by require" errors.
+- **Because `"type": "module"` is set, all .js files are ESM.** Use `export default` in config files — never `module.exports`. This applies to `vite.config.js`, `postcss.config.js`, `tailwind.config.js`, and all source files. Use `import`/`export`, not `require`.
 - Never write malformed JSON. No trailing commas, no comments, no unquoted keys.

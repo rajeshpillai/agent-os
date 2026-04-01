@@ -9,6 +9,7 @@ import { summarizeAndSave } from "../memory/summary.js";
 import { Skill } from "../skills/models.js";
 import { EventBus, createEvent } from "../runtime/event-bus.js";
 import { RunLogger } from "../runtime/run-logger.js";
+import { ApprovalGate } from "../runtime/approval.js";
 import { buildContext } from "./context-builder.js";
 import { runLoop } from "./loop.js";
 import { buildSystemPrompt } from "./system-prompt.js";
@@ -21,6 +22,7 @@ export interface AgentOptions {
   skills?: Skill[];
   eventBus?: EventBus;
   runLogger?: RunLogger;
+  approvalGate?: ApprovalGate;
 }
 
 export class Agent {
@@ -79,6 +81,7 @@ export class Agent {
         toolExecutor,
         eventBus,
         runId: run.id,
+        approvalGate: this.options.approvalGate,
       });
 
       run.steps = loopResult.steps;

@@ -9,12 +9,14 @@ import {
 } from "../core/types.js";
 import { FINALIZE_TOOL_NAME } from "../tools/builtins/finalize.tool.js";
 import { EventBus, createEvent } from "../runtime/event-bus.js";
+import { ApprovalGate, withApprovalGate } from "../runtime/approval.js";
 
 export interface LoopOptions {
   maxSteps: number;
   toolExecutor?: ToolExecutor;
   eventBus?: EventBus;
   runId?: string;
+  approvalGate?: ApprovalGate;
 }
 
 export interface LoopResult {
@@ -38,7 +40,7 @@ export async function runLoop(
   messages: Message[],
   options: LoopOptions
 ): Promise<LoopResult> {
-  const { maxSteps, toolExecutor = noOpToolExecutor, eventBus, runId = "unknown" } = options;
+  const { maxSteps, toolExecutor = noOpToolExecutor, eventBus, runId = "unknown", approvalGate } = options;
   const steps: StepRecord[] = [];
   let finalOutput = "";
   let stopReason: StopReason = "max_steps";
@@ -93,13 +95,18 @@ export async function runLoop(
       toolCalls: response.message.toolCalls!.map(tc => ({ name: tc.name, arguments: tc.arguments })),
     });
 
+    // Wrap executor with approval gate if configured
+    const gatedExecutor = approvalGate
+      ? withApprovalGate(toolExecutor, approvalGate, runId, step)
+      : toolExecutor;
+
     const toolResults: ToolResult[] = [];
     for (const toolCall of response.message.toolCalls!) {
       console.log(`[Loop]   executing: ${toolCall.name}(${JSON.stringify(toolCall.arguments)})`);
 
       emit("tool:call", { step, tool: toolCall.name, arguments: toolCall.arguments });
 
-      const result = await toolExecutor(toolCall);
+      const result = await gatedExecutor(toolCall);
       toolResults.push(result);
 
       // Feed tool result back as a message

@@ -12,7 +12,7 @@
 - [x] Commit 10 — Run events + logs
 - [x] Commit 11 — Summarization + memory compression
 - [x] Commit 12 — Planner / executor split
-- [ ] Commit 13 — Human approval gates
+- [x] Commit 13 — Human approval gates
 - [ ] Commit 14 — Multi-agent shared memory foundation
 - [ ] Commit 15 — Production hardening
 

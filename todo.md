@@ -25,6 +25,30 @@
 - [x] Commit 21 — --project flag for modifying existing projects
 - [x] Commit 22 — Interactive REPL CLI (slash commands, project switching, model switching)
 
+## Interactive REPL CLI (done)
+- [x] REPL as default mode — `agent-os` launches interactive session
+- [x] Project-aware — first prompt auto-creates project, follow-ups target it
+- [x] Resume existing projects — `agent-os --project todo-app` or `/project` command
+- [x] Open any directory — `agent-os .` treats cwd as the project
+- [x] Slash commands — /project, /projects, /new, /status, /model, /provider, /config, /history, /clear, /help, /exit
+- [x] Model switching — `/model gpt-4o` mid-session, `--model` CLI flag
+- [x] Provider switching — `/provider ollama` mid-session
+- [x] Project file tree scanning — injected into system prompt for existing projects
+- [x] Session history tracking
+- [x] Backwards compatible — `agent-os run "task"` one-shot still works
+
+## REPL improvements (next)
+- [ ] Streaming output — show agent thinking/acting in real-time (not just final result)
+- [ ] Conversation memory — follow-ups within a session share context (message history)
+- [ ] Tab completion — for slash commands and project names
+- [ ] Color output — colored status messages, syntax highlighting in output
+- [ ] Multiline input — paste or type multi-line prompts
+- [ ] `/undo` — revert last file changes made by the agent
+- [ ] `/diff` — show what the agent changed in the last run
+- [ ] `/run <script>` — run a script in the project (e.g. `/run npm start`)
+- [ ] Auto-detect provider — skip provider flag if only one API key is set in .env
+- [ ] Persistent session — save/resume REPL sessions across restarts
+
 ## Path A: npm package (reusable for any dev)
 - [ ] Clean public API — export Agent, createTask, ToolRegistry, createProvider from package root
 - [ ] Add `exports` field to package.json for ESM/CJS consumers
@@ -45,7 +69,11 @@
 - [ ] Code review skill: "Agent OS: Review Selection" command
 
 ## Skills to add
+- [x] `fullstack` — React + Express + Tailwind with design system
+- [x] `react-frontend` — React SPA with component library
+- [x] `nextjs` — Next.js App Router + Prisma
+- [x] `python-api` — FastAPI + SQLAlchemy
+- [x] `static-site` — HTML/CSS/JS with design tokens
 - [ ] `code-review` — review existing code for bugs, security, style
-- [ ] `fullstack` — full-stack app scaffolding guidance
 - [ ] `devops` — Dockerfile, CI/CD, deploy scripts
 - [ ] `testing` — write unit/integration tests

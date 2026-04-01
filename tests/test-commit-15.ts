@@ -137,6 +137,8 @@ async function runTests() {
     workspaceRoot: "./workspace",
     openaiModel: "gpt-4o-mini",
     geminiModel: "gemini-2.0-flash",
+    ollamaModel: "llama3",
+    ollamaBaseUrl: "http://localhost:11434/v1/",
   };
   const validResult = validateConfig(validConfig);
   assert("is valid", validResult.valid);
@@ -150,6 +152,8 @@ async function runTests() {
     workspaceRoot: "./workspace",
     openaiModel: "gpt-4o-mini",
     geminiModel: "gemini-2.0-flash",
+    ollamaModel: "llama3",
+    ollamaBaseUrl: "http://localhost:11434/v1/",
   };
   const noKeyResult = validateConfig(noKeyConfig);
   assert("is invalid", !noKeyResult.valid);
@@ -163,6 +167,8 @@ async function runTests() {
     workspaceRoot: "./workspace",
     openaiModel: "gpt-4o-mini",
     geminiModel: "gemini-2.0-flash",
+    ollamaModel: "llama3",
+    ollamaBaseUrl: "http://localhost:11434/v1/",
   };
   const unknownResult = validateConfig(unknownConfig);
   assert("is invalid", !unknownResult.valid);
@@ -176,6 +182,8 @@ async function runTests() {
     workspaceRoot: "./workspace",
     openaiModel: "gpt-4o-mini",
     geminiModel: "gemini-2.0-flash",
+    ollamaModel: "llama3",
+    ollamaBaseUrl: "http://localhost:11434/v1/",
   };
   const badResult = validateConfig(badSteps);
   assert("is invalid", !badResult.valid);

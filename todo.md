@@ -19,3 +19,31 @@
 ## Post v1
 - [x] Commit 16 — Gemini provider (OpenAI-compatible endpoint)
 - [x] Commit 17 — CLI (parse-args, run-task command)
+- [x] Commit 18 — Ollama provider (local open-source models)
+- [x] Commit 19 — Shell tool improvements (smart timeouts, prompt guardrails)
+- [x] Commit 20 — README cookbook (full-stack, tools, skills, programmatic usage)
+
+## Path A: npm package (reusable for any dev)
+- [ ] Clean public API — export Agent, createTask, ToolRegistry, createProvider from package root
+- [ ] Add `exports` field to package.json for ESM/CJS consumers
+- [ ] Add `#!/usr/bin/env node` shebang to CLI entry point
+- [ ] Decouple workspace tools from hardcoded paths (accept config at init)
+- [ ] Add `agent-os init` command — scaffolds .env, skills/, workspace/ in a project
+- [ ] Write npm package README with install + quickstart
+- [ ] Publish to npm as `agent-os`
+- [ ] Test: `npx agent-os run "build a hello world app"` works end-to-end
+
+## Path B: VS Code extension (future)
+- [ ] Scaffold extension with `yo code` (TypeScript)
+- [ ] Command palette: "Agent OS: Run Task" → input box → runs agent
+- [ ] Output panel streaming agent loop events via EventBus
+- [ ] Settings UI: provider, API key, max steps, model
+- [ ] Workspace-aware: auto-detect open folder as WORKSPACE_ROOT
+- [ ] Status bar: show agent running/idle state
+- [ ] Code review skill: "Agent OS: Review Selection" command
+
+## Skills to add
+- [ ] `code-review` — review existing code for bugs, security, style
+- [ ] `fullstack` — full-stack app scaffolding guidance
+- [ ] `devops` — Dockerfile, CI/CD, deploy scripts
+- [ ] `testing` — write unit/integration tests

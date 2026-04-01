@@ -6,6 +6,7 @@ import { Tool } from "../tool.js";
 export interface ShellToolConfig {
   workspaceRoot: string;
   timeoutMs?: number;
+  longTimeoutMs?: number;
   allowedCommands?: string[];
   blockedCommands?: string[];
 }
@@ -61,7 +62,8 @@ function isAllowed(command: string, allowedCommands?: string[]): boolean {
 export function createShellTool(config: ShellToolConfig): Tool {
   const {
     workspaceRoot,
-    timeoutMs = 10_000,
+    timeoutMs = 30_000,
+    longTimeoutMs = 120_000,
     allowedCommands,
     blockedCommands = DEFAULT_BLOCKED_COMMANDS,
   } = config;
@@ -77,13 +79,18 @@ export function createShellTool(config: ShellToolConfig): Tool {
         {
           name: "command",
           type: "string",
-          description: "The shell command to execute.",
+          description: "The shell command to execute. IMPORTANT: Do not start long-running servers (e.g. 'node server.js', 'npm start') — they will block and time out. Use write_file to create files rather than scaffolding tools like 'create-react-app'. For package installs (npm install), set timeout to 'long'.",
           required: true,
         },
         {
           name: "cwd",
           type: "string",
           description: "Working directory relative to workspace root. Defaults to workspace root.",
+        },
+        {
+          name: "timeout",
+          type: "string",
+          description: "Timeout duration: 'short' (30s, default) or 'long' (120s, for npm install and builds).",
         },
       ],
     },
@@ -117,10 +124,15 @@ export function createShellTool(config: ShellToolConfig): Tool {
         throw new Error(`Working directory does not exist: ${relativeCwd}`);
       }
 
+      // Determine timeout: explicit arg, auto-detect for long commands, or default
+      const timeoutArg = (args.timeout as string) || "";
+      const isLongCommand = timeoutArg === "long" || /\b(npm install|npm ci|npx |yarn add|yarn install|pnpm install|pip install|cargo build|go build|mvn |gradle )\b/.test(command);
+      const effectiveTimeout = isLongCommand ? longTimeoutMs : timeoutMs;
+
       try {
         const output = execSync(command, {
           cwd,
-          timeout: timeoutMs,
+          timeout: effectiveTimeout,
           encoding: "utf-8",
           maxBuffer: 1024 * 1024, // 1MB
           stdio: ["pipe", "pipe", "pipe"],

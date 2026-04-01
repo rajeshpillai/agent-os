@@ -60,7 +60,7 @@ Usage:
   agent-os help                  Show this help
 
 Options:
-  --provider <name>    LLM provider (mock, openai, gemini)
+  --provider <name>    LLM provider (mock, openai, gemini, ollama)
   --max-steps <n>      Maximum agent loop steps (default: 10)
   --workspace <path>   Workspace root directory (default: .)
   --skills-dir <path>  Skills directory (default: ./skills)

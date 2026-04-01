@@ -35,10 +35,13 @@ export async function runTaskCommand(args: ParsedArgs): Promise<void> {
 
   assertConfigValid(config);
 
-  const workspace = resolve((args.flags.workspace as string) ?? ".");
+  const workspace = resolve((args.flags.workspace as string) ?? config.workspaceRoot);
   const skillsDir = resolve((args.flags["skills-dir"] as string) ?? "./skills");
   const logsDir = resolve((args.flags["logs-dir"] as string) ?? "./.agent-os/logs");
   const verbose = args.flags.verbose === true;
+
+  // Ensure workspace directory exists
+  mkdirSync(workspace, { recursive: true });
 
   // Set up tool registry
   const registry = new ToolRegistry();

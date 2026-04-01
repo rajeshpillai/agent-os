@@ -20,10 +20,11 @@ async function main() {
   // Set up tool registry
   const registry = new ToolRegistry();
   registry.register(createFinalizeTool());
-  registry.register(createListFilesTool("."));
-  registry.register(createReadFileTool("."));
-  registry.register(createWriteFileTool("."));
-  registry.register(createShellTool({ workspaceRoot: "." }));
+  const workspace = config.workspaceRoot;
+  registry.register(createListFilesTool(workspace));
+  registry.register(createReadFileTool(workspace));
+  registry.register(createWriteFileTool(workspace));
+  registry.register(createShellTool({ workspaceRoot: workspace }));
   console.log(`Tools: ${registry.list().map(t => t.name).join(", ")}`);
 
   // Load skills and select based on task

@@ -11,8 +11,8 @@ export function validateConfig(config: Config): ValidationResult {
 
   if (!config.llmProvider) {
     errors.push("LLM_PROVIDER is required");
-  } else if (!["mock", "openai", "gemini"].includes(config.llmProvider)) {
-    errors.push(`Unknown LLM_PROVIDER: "${config.llmProvider}". Supported: mock, openai, gemini`);
+  } else if (!["mock", "openai", "gemini", "ollama"].includes(config.llmProvider)) {
+    errors.push(`Unknown LLM_PROVIDER: "${config.llmProvider}". Supported: mock, openai, gemini, ollama`);
   }
 
   if (config.llmProvider === "openai" && !config.openaiApiKey) {

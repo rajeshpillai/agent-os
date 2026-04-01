@@ -33,6 +33,14 @@ export function createProvider(config: Config, options?: LLMProviderOptions): LL
         tools: options?.tools,
       });
     }
+    case "ollama": {
+      return new OpenAIProvider({
+        apiKey: "ollama",
+        model: config.ollamaModel,
+        baseURL: config.ollamaBaseUrl,
+        tools: options?.tools,
+      });
+    }
     case "mock":
       return new MockProvider();
     default:

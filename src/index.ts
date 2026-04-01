@@ -1,7 +1,7 @@
 import { Agent } from "./agent/agent.js";
-import { MockProvider, MockStep } from "./llm/providers/mock.provider.js";
 import { createTask } from "./core/task.js";
 import { loadConfig } from "./config/env.js";
+import { createProvider } from "./llm/llm.js";
 import { ToolRegistry } from "./tools/registry.js";
 import { createFinalizeTool } from "./tools/builtins/finalize.tool.js";
 import { createListFilesTool } from "./tools/builtins/list-files.tool.js";
@@ -28,28 +28,14 @@ async function main() {
   const allSkills = loadAllSkills("./skills");
   console.log(`Skills loaded: ${allSkills.map(s => s.name).join(", ")}`);
 
-  const task = createTask("Read the README and summarize this project.");
+  const task = createTask("Read the README.md file and give me a 2-sentence summary of this project.");
   const selectedSkills = selectSkillsForTask(allSkills, task.description);
   console.log(`Skills selected: ${selectedSkills.map(s => s.name).join(", ") || "(none)"}`);
 
-  // Demo: agent reads file then finalizes
-  const mockSteps: (string | MockStep)[] = [
-    {
-      content: "Let me read the README to understand this project.",
-      toolCalls: [{ id: "call_1", name: "read_file", arguments: { path: "README.md" } }],
-    },
-    {
-      content: "Got it. Let me summarize.",
-      toolCalls: [
-        {
-          id: "call_2",
-          name: "finalize",
-          arguments: { result: "Agent OS is a Node.js + TypeScript runtime that turns an LLM into a controllable agent." },
-        },
-      ],
-    },
-  ];
-  const provider = new MockProvider(mockSteps);
+  // Create provider from config — passes tool definitions for OpenAI function calling
+  const provider = createProvider(config, {
+    tools: registry.list(),
+  });
 
   const agent = new Agent(provider, {
     maxSteps: config.maxSteps,

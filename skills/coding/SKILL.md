@@ -1,7 +1,7 @@
 ---
 name: coding
 description: Write, read, and modify code files
-tags: code, coding, implement, refactor, debug, fix, function, class
+tags: code, coding, implement, refactor, debug, fix, function, class, struct, module
 tools: read_file, write_file, list_files
 ---
 

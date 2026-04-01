@@ -6,6 +6,8 @@ import { ToolRegistry } from "../tools/registry.js";
 import { MemoryStore } from "../memory/memory-store.js";
 import { saveTaskMemory, saveRunMemory, getRecentMemory } from "../memory/helpers.js";
 import { Skill } from "../skills/models.js";
+import { EventBus, createEvent } from "../runtime/event-bus.js";
+import { RunLogger } from "../runtime/run-logger.js";
 import { buildContext } from "./context-builder.js";
 import { runLoop } from "./loop.js";
 import { buildSystemPrompt } from "./system-prompt.js";
@@ -16,6 +18,8 @@ export interface AgentOptions {
   registry?: ToolRegistry;
   memoryStore?: MemoryStore;
   skills?: Skill[];
+  eventBus?: EventBus;
+  runLogger?: RunLogger;
 }
 
 export class Agent {
@@ -30,6 +34,12 @@ export class Agent {
   async execute(task: Task): Promise<AgentResult> {
     const startTime = Date.now();
     let run = createRun(task);
+
+    // Set up event bus and attach logger
+    const eventBus = this.options.eventBus ?? new EventBus();
+    if (this.options.runLogger) {
+      this.options.runLogger.attachTo(eventBus);
+    }
 
     // Load recent memory if store is available
     const recentMemory = this.options.memoryStore
@@ -51,6 +61,12 @@ export class Agent {
 
     console.log(`\n[Agent] Starting run ${run.id} for task: ${task.description}`);
 
+    eventBus.emit(createEvent("run:start", run.id, {
+      taskId: task.id,
+      taskDescription: task.description,
+      maxSteps: this.options.maxSteps,
+    }));
+
     // Prefer registry executor over raw toolExecutor
     const toolExecutor = this.options.registry
       ? this.options.registry.toExecutor()
@@ -60,6 +76,8 @@ export class Agent {
       const loopResult = await runLoop(this.provider, messages, {
         maxSteps: this.options.maxSteps,
         toolExecutor,
+        eventBus,
+        runId: run.id,
       });
 
       run.steps = loopResult.steps;
@@ -67,6 +85,10 @@ export class Agent {
       switch (loopResult.stopReason) {
         case "complete":
           run = completeRun(run, loopResult.finalOutput);
+          eventBus.emit(createEvent("run:complete", run.id, {
+            output: loopResult.finalOutput.slice(0, 500),
+            totalSteps: loopResult.steps.length,
+          }));
           break;
         case "max_steps":
           run = {
@@ -75,15 +97,22 @@ export class Agent {
             result: loopResult.finalOutput,
             completedAt: new Date().toISOString(),
           };
+          eventBus.emit(createEvent("run:max_steps", run.id, {
+            totalSteps: loopResult.steps.length,
+          }));
           break;
         case "error":
         case "tool_error":
           run = failRun(run, loopResult.finalOutput);
+          eventBus.emit(createEvent("run:fail", run.id, {
+            error: loopResult.finalOutput.slice(0, 500),
+          }));
           break;
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       run = failRun(run, errorMessage);
+      eventBus.emit(createEvent("run:fail", run.id, { error: errorMessage }));
     }
 
     // Persist to memory if store is provided

@@ -8,10 +8,13 @@ import {
   StopReason,
 } from "../core/types.js";
 import { FINALIZE_TOOL_NAME } from "../tools/builtins/finalize.tool.js";
+import { EventBus, createEvent } from "../runtime/event-bus.js";
 
 export interface LoopOptions {
   maxSteps: number;
   toolExecutor?: ToolExecutor;
+  eventBus?: EventBus;
+  runId?: string;
 }
 
 export interface LoopResult {
@@ -35,10 +38,14 @@ export async function runLoop(
   messages: Message[],
   options: LoopOptions
 ): Promise<LoopResult> {
-  const { maxSteps, toolExecutor = noOpToolExecutor } = options;
+  const { maxSteps, toolExecutor = noOpToolExecutor, eventBus, runId = "unknown" } = options;
   const steps: StepRecord[] = [];
   let finalOutput = "";
   let stopReason: StopReason = "max_steps";
+
+  const emit = (type: Parameters<typeof createEvent>[0], data: Record<string, unknown> = {}) => {
+    if (eventBus) eventBus.emit(createEvent(type, runId, data));
+  };
 
   for (let step = 1; step <= maxSteps; step++) {
     // === THINK: Ask the LLM what to do next ===
@@ -57,13 +64,19 @@ export async function runLoop(
 
     messages.push(response.message);
 
+    emit("step:think", {
+      step,
+      content: response.message.content?.slice(0, 200),
+      hasToolCalls,
+      usage: response.usage,
+    });
+
     if (response.message.content) {
       console.log(`[Loop]   thought: ${response.message.content.slice(0, 120)}`);
     }
 
     // === No tool calls → complete ===
     if (!hasToolCalls) {
-      thinkRecord.phase = "think";
       steps.push(thinkRecord);
       finalOutput = response.message.content;
       stopReason = "complete";
@@ -75,9 +88,17 @@ export async function runLoop(
     console.log(`[Loop]   → act: ${response.message.toolCalls!.map(tc => tc.name).join(", ")}`);
     steps.push(thinkRecord);
 
+    emit("step:act", {
+      step,
+      toolCalls: response.message.toolCalls!.map(tc => ({ name: tc.name, arguments: tc.arguments })),
+    });
+
     const toolResults: ToolResult[] = [];
     for (const toolCall of response.message.toolCalls!) {
       console.log(`[Loop]   executing: ${toolCall.name}(${JSON.stringify(toolCall.arguments)})`);
+
+      emit("tool:call", { step, tool: toolCall.name, arguments: toolCall.arguments });
+
       const result = await toolExecutor(toolCall);
       toolResults.push(result);
 
@@ -86,6 +107,13 @@ export async function runLoop(
         role: "tool",
         content: result.result,
         toolCallId: toolCall.id,
+      });
+
+      emit("tool:result", {
+        step,
+        tool: toolCall.name,
+        result: result.result.slice(0, 500),
+        isError: result.isError,
       });
 
       console.log(`[Loop]   result: ${result.result.slice(0, 100)}${result.isError ? " [ERROR]" : ""}`);
@@ -102,6 +130,12 @@ export async function runLoop(
     };
     steps.push(observeRecord);
 
+    emit("step:observe", {
+      step,
+      resultCount: toolResults.length,
+      errors: toolResults.filter(r => r.isError).length,
+    });
+
     console.log(`[Loop]   → observe: ${toolResults.length} result(s)`);
 
     // Check if finalize was called
@@ -109,6 +143,7 @@ export async function runLoop(
     if (finalizeResult) {
       finalOutput = finalizeResult.result;
       stopReason = "complete";
+      emit("loop:finalize", { step, result: finalizeResult.result.slice(0, 500) });
       console.log(`[Loop]   → finalized`);
       break;
     }
@@ -116,7 +151,6 @@ export async function runLoop(
 
   if (stopReason === "max_steps") {
     console.log(`[Loop] Max steps (${maxSteps}) reached`);
-    // Use last assistant message as output if we hit max steps
     const lastAssistant = messages.filter(m => m.role === "assistant").pop();
     finalOutput = lastAssistant?.content ?? "Max steps reached without completion.";
   }

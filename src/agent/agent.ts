@@ -4,8 +4,9 @@ import { Run, createRun, completeRun, failRun } from "../core/run.js";
 import { AgentResult } from "../core/result.js";
 import { ToolRegistry } from "../tools/registry.js";
 import { MemoryStore } from "../memory/memory-store.js";
-import { saveTaskMemory, saveRunMemory } from "../memory/helpers.js";
+import { saveTaskMemory, saveRunMemory, getRecentMemory } from "../memory/helpers.js";
 import { Skill } from "../skills/models.js";
+import { buildContext } from "./context-builder.js";
 import { runLoop } from "./loop.js";
 import { buildSystemPrompt } from "./system-prompt.js";
 
@@ -30,8 +31,21 @@ export class Agent {
     const startTime = Date.now();
     let run = createRun(task);
 
+    // Load recent memory if store is available
+    const recentMemory = this.options.memoryStore
+      ? await getRecentMemory(this.options.memoryStore, 5)
+      : undefined;
+
+    // Build full context
+    const ctx = buildContext({
+      task,
+      tools: this.options.registry?.list(),
+      skills: this.options.skills,
+      memory: recentMemory,
+    });
+
     const messages: Message[] = [
-      { role: "system", content: buildSystemPrompt({ task, skills: this.options.skills }) },
+      { role: "system", content: buildSystemPrompt(ctx) },
       { role: "user", content: task.description + (task.input ? `\n\nInput: ${task.input}` : "") },
     ];
 

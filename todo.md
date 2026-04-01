@@ -7,7 +7,7 @@
 - [x] Commit 05 — File-based memory
 - [x] Commit 06 — Skill system
 - [x] Commit 07 — Real LLM provider abstraction
-- [ ] Commit 08 — System prompt composer
+- [x] Commit 08 — System prompt composer
 - [ ] Commit 09 — Shell tool with safety guardrails
 - [ ] Commit 10 — Run events + logs
 - [ ] Commit 11 — Summarization + memory compression

@@ -7,6 +7,7 @@ import { createFinalizeTool } from "./tools/builtins/finalize.tool.js";
 import { createListFilesTool } from "./tools/builtins/list-files.tool.js";
 import { createReadFileTool } from "./tools/builtins/read-file.tool.js";
 import { createWriteFileTool } from "./tools/builtins/write-file.tool.js";
+import { loadAllSkills, selectSkillsForTask } from "./skills/skill-loader.js";
 
 async function main() {
   const config = loadConfig();
@@ -15,16 +16,23 @@ async function main() {
   console.log(`Provider: ${config.llmProvider}`);
   console.log(`Max steps: ${config.maxSteps}`);
 
-  // Set up tool registry with all workspace tools
+  // Set up tool registry
   const registry = new ToolRegistry();
   registry.register(createFinalizeTool());
   registry.register(createListFilesTool("."));
   registry.register(createReadFileTool("."));
   registry.register(createWriteFileTool("."));
-
   console.log(`Tools: ${registry.list().map(t => t.name).join(", ")}`);
 
-  // Demo: agent reads a file then finalizes
+  // Load skills and select based on task
+  const allSkills = loadAllSkills("./skills");
+  console.log(`Skills loaded: ${allSkills.map(s => s.name).join(", ")}`);
+
+  const task = createTask("Read the README and summarize this project.");
+  const selectedSkills = selectSkillsForTask(allSkills, task.description);
+  console.log(`Skills selected: ${selectedSkills.map(s => s.name).join(", ") || "(none)"}`);
+
+  // Demo: agent reads file then finalizes
   const mockSteps: (string | MockStep)[] = [
     {
       content: "Let me read the README to understand this project.",
@@ -46,9 +54,9 @@ async function main() {
   const agent = new Agent(provider, {
     maxSteps: config.maxSteps,
     registry,
+    skills: selectedSkills,
   });
 
-  const task = createTask("Read the README and summarize this project.");
   const result = await agent.execute(task);
 
   console.log("\n=== Result ===");

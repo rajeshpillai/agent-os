@@ -5,7 +5,7 @@
 - [x] Commit 03 — Tool interface + registry
 - [x] Commit 04 — Workspace tools
 - [x] Commit 05 — File-based memory
-- [ ] Commit 06 — Skill system
+- [x] Commit 06 — Skill system
 - [ ] Commit 07 — Real LLM provider abstraction
 - [ ] Commit 08 — System prompt composer
 - [ ] Commit 09 — Shell tool with safety guardrails

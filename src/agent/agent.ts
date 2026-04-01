@@ -5,6 +5,7 @@ import { AgentResult } from "../core/result.js";
 import { ToolRegistry } from "../tools/registry.js";
 import { MemoryStore } from "../memory/memory-store.js";
 import { saveTaskMemory, saveRunMemory } from "../memory/helpers.js";
+import { Skill } from "../skills/models.js";
 import { runLoop } from "./loop.js";
 import { buildSystemPrompt } from "./system-prompt.js";
 
@@ -13,6 +14,7 @@ export interface AgentOptions {
   toolExecutor?: ToolExecutor;
   registry?: ToolRegistry;
   memoryStore?: MemoryStore;
+  skills?: Skill[];
 }
 
 export class Agent {
@@ -29,7 +31,7 @@ export class Agent {
     let run = createRun(task);
 
     const messages: Message[] = [
-      { role: "system", content: buildSystemPrompt(task) },
+      { role: "system", content: buildSystemPrompt({ task, skills: this.options.skills }) },
       { role: "user", content: task.description + (task.input ? `\n\nInput: ${task.input}` : "") },
     ];
 

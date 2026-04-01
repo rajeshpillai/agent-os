@@ -9,8 +9,11 @@ export function parseArgs(argv: string[]): ParsedArgs {
   // Skip node and script path
   const args = argv.slice(2);
 
-  const command = args[0] ?? "help";
-  const remaining = args.slice(1);
+  // If first arg is a known command, use it. Otherwise treat as REPL invocation.
+  const knownCommands = new Set(["run", "help", "--help", "-h"]);
+  const firstArg = args[0];
+  const command = firstArg && knownCommands.has(firstArg) ? firstArg : "repl";
+  const remaining = command === "repl" ? args : args.slice(1);
 
   const flags: Record<string, string | boolean> = {};
   const positional: string[] = [];
@@ -48,27 +51,41 @@ export function parseArgs(argv: string[]): ParsedArgs {
 
 export function showHelp(): string {
   return `
-Agent OS — CLI
+Agent OS — AI-powered development CLI
 
 Usage:
-  agent-os run "<task>"                  Create a new project
-  agent-os run "<task>" --name my-app    Create with a specific name
-  agent-os run "<task>" --project my-app Modify an existing project
+  agent-os                               Interactive REPL (default)
+  agent-os --project todo-app            REPL with existing project loaded
+  agent-os .                             REPL with current directory as project
+  agent-os run "<task>"                  One-shot: create a new project
+  agent-os run "<task>" --project my-app One-shot: modify existing project
   agent-os help                          Show this help
 
-Examples:
-  agent-os run "Create a todo app" --provider openai
-  agent-os run "Add dark mode" --project todo-app --provider openai
-  agent-os run "Fix the delete button" --project todo-app --provider openai
+Interactive REPL commands:
+  /project <name>    Switch to an existing project
+  /projects          List all projects
+  /new <name>        Create a new empty project
+  /status            Show current project files
+  /history           Show tasks run this session
+  /config            Show configuration
+  /help              Show all commands
+  /exit              Exit
 
 Options:
   --provider <name>    LLM provider (mock, openai, gemini, ollama)
+  --model <name>       Override the model (e.g. gpt-4o, llama3, gemini-pro)
   --max-steps <n>      Maximum agent loop steps (default: 10)
   --name <name>        Project folder name (default: auto-generated from task)
-  --project <name>     Target an existing project to modify/fix/extend
+  --project <name>     Target an existing project
   --workspace <path>   Workspace root directory (default: ./workspace)
   --skills-dir <path>  Skills directory (default: ./skills)
   --logs-dir <path>    JSONL logs directory (default: ./.agent-os/logs)
   --verbose            Enable verbose logging
+
+Examples:
+  agent-os                                         # start REPL
+  agent-os --project todo-app --provider openai    # REPL on existing project
+  agent-os run "Create a todo app" --name todo-app # one-shot create
+  agent-os run "Fix the bug" --project todo-app    # one-shot modify
 `.trim();
 }

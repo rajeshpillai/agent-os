@@ -25,10 +25,10 @@ A production-shaped Agent OS built in Node.js + TypeScript that turns an LLM int
 npm install
 cp .env.example .env   # configure your provider
 
-# Dev mode (runs src/index.ts demo)
-npm run dev
+# Interactive REPL (recommended)
+npm run cli
 
-# CLI mode
+# One-shot mode
 npm run cli -- run "Your task description here"
 ```
 
@@ -73,7 +73,79 @@ Any model that Ollama supports works: `llama3`, `mistral`, `codellama`, `deepsee
 
 You can also point to a remote Ollama instance by setting `OLLAMA_BASE_URL`.
 
-## CLI Usage
+## Interactive REPL
+
+The default mode is an interactive REPL — like Claude Code, but for your agent:
+
+```bash
+# Start the REPL
+npm run cli
+
+# Start with a specific provider
+npm run cli -- --provider openai
+
+# Resume work on an existing project
+npm run cli -- --project todo-app
+
+# Open current directory as a project
+npm run cli -- .
+```
+
+### REPL Session Example
+
+```
+╭─────────────────────────────────────────────╮
+│  Agent OS v0.1.0                            │
+│  Provider: openai (gpt-4o-mini)             │
+│  Project:  (none — type to create one)      │
+╰─────────────────────────────────────────────╯
+
+> Create a fullstack todo app with React and Express
+  ✓ Created project: create-a-fullstack-todo-app
+  [Agent] Writing backend/package.json...
+  ...
+  ✓ Done (12 steps, 45s)
+
+create-a-fullstack-todo-app > Add a dark mode toggle
+  [Agent] Reading frontend/src/App.jsx...
+  ...
+  ✓ Done (5 steps, 18s)
+
+create-a-fullstack-todo-app > /model gpt-4o
+  ✓ Model switched to: gpt-4o (openai)
+
+create-a-fullstack-todo-app > /projects
+  create-a-fullstack-todo-app   47 files     2m ago ◀
+  my-api                        23 files     1d ago
+
+create-a-fullstack-todo-app > /project my-api
+  ✓ Switched to: my-api (23 files)
+
+my-api > Fix the GET /users endpoint
+  ...
+```
+
+### REPL Commands
+
+| Command | Description |
+|---------|-------------|
+| `/project <name>` | Switch to an existing project |
+| `/projects` | List all projects in workspace |
+| `/new <name>` | Create a new empty project |
+| `/status` | Show current project file tree |
+| `/model <name>` | Switch model (e.g. `gpt-4o`, `llama3`, `gemini-pro`) |
+| `/provider <name>` | Switch provider (`openai`, `gemini`, `ollama`, `mock`) |
+| `/config` | Show current configuration |
+| `/history` | Show tasks run this session |
+| `/clear` | Reset session (keep project) |
+| `/help` | Show all commands |
+| `/exit` | Exit the REPL |
+
+---
+
+## One-Shot CLI
+
+For scripts and CI, use the `run` command:
 
 ```bash
 # Create a new project (auto-named from task)

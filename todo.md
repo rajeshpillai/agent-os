@@ -22,6 +22,8 @@
 - [x] Commit 18 — Ollama provider (local open-source models)
 - [x] Commit 19 — Shell tool improvements (smart timeouts, prompt guardrails)
 - [x] Commit 20 — README cookbook (full-stack, tools, skills, programmatic usage)
+- [x] Commit 21 — --project flag for modifying existing projects
+- [x] Commit 22 — Interactive REPL CLI (slash commands, project switching, model switching)
 
 ## Path A: npm package (reusable for any dev)
 - [ ] Clean public API — export Agent, createTask, ToolRegistry, createProvider from package root

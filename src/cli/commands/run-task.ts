@@ -42,6 +42,12 @@ export async function runTaskCommand(args: ParsedArgs): Promise<void> {
   if (args.flags["max-steps"]) {
     config.maxSteps = parseInt(args.flags["max-steps"] as string, 10);
   }
+  if (args.flags.model) {
+    const model = args.flags.model as string;
+    if (config.llmProvider === "openai") config.openaiModel = model;
+    else if (config.llmProvider === "gemini") config.geminiModel = model;
+    else if (config.llmProvider === "ollama") config.ollamaModel = model;
+  }
 
   assertConfigValid(config);
 

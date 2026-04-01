@@ -1,5 +1,6 @@
 import { parseArgs, showHelp } from "./cli/parse-args.js";
 import { runTaskCommand } from "./cli/commands/run-task.js";
+import { replCommand } from "./cli/commands/repl.js";
 
 async function main() {
   const args = parseArgs(process.argv);
@@ -13,10 +14,10 @@ async function main() {
     case "-h":
       console.log(showHelp());
       break;
+    case "repl":
     default:
-      console.error(`Unknown command: ${args.command}`);
-      console.log(showHelp());
-      process.exit(1);
+      await replCommand(args);
+      break;
   }
 }
 

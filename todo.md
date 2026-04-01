@@ -18,3 +18,4 @@
 
 ## Post v1
 - [x] Commit 16 — Gemini provider (OpenAI-compatible endpoint)
+- [x] Commit 17 — CLI (parse-args, run-task command)
